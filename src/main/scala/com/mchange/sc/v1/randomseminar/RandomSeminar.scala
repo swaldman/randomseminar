@@ -71,7 +71,7 @@ object RandomSeminar extends SimpleSwingApplication {
 
         if ( isSelected ) {
           opaque = true
-          foreground = Color.black
+          foreground = if (a.spokenYet) Color.lightGray else Color.black
           background = SelectedChrome
         }
       }
@@ -239,6 +239,10 @@ object RandomSeminar extends SimpleSwingApplication {
         ParticipantList.selection.items.foreach( p => removeParticipant( p.name ) )
         TabsPane.syncAll()
       }
+      case KeyPressed( ParticipantList, Key.Enter, _, _ ) if ParticipantList.selection.items.size == 1 => {
+        anointParticipant( ParticipantList.selection.items.head )
+        TabsPane.syncAll()
+      }
       case evt =>{
         println(s"Event! ${evt}")
       }
@@ -275,13 +279,29 @@ object RandomSeminar extends SimpleSwingApplication {
     if ( unspokenParticipants.nonEmpty ) { // could still be empty if none ave been defined
       val newParticipant = unspokenParticipants( entropy.nextInt( unspokenParticipants.length ) )
       //println( s"Selected participant: ${newParticipant}" )
-      removeParticipant( newParticipant.name )
-      addParticipant( newParticipant.name, true )
-      this.currentParticipantName = Some( newParticipant.name )
+      anointParticipant( newParticipant )
     }
+    else {
+      unanointParticipant()
+    }
+    TabsPane.syncAll()
+  }
+
+  private def unanointParticipant() : Unit = {
+    this.currentParticipantName = None
+    resetSession()
+  }
+
+  private def anointParticipant( newParticipant : Participant ) : Unit = {
+    removeParticipant( newParticipant.name )
+    addParticipant( newParticipant.name, true )
+    this.currentParticipantName = Some( newParticipant.name )
+    resetSession()
+  }
+
+  private def resetSession() : Unit = {
     this.isPaused = true
     sessionElapsedMillis = 0L
-    ParticipantList.refresh()
   }
 
   val TickTask = () => {
