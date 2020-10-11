@@ -1,3 +1,5 @@
+enablePlugins(JavaAppPackaging)
+
 organization := "com.mchange"
 
 name := "randomseminar"
