@@ -130,11 +130,18 @@ object RandomSeminar extends SimpleSwingApplication {
       text = ( DefaultLimitMillis / 1000 ).toString
     }
     val SecondsPanel = new BorderPanel {
+      val LimitLabel = new Label {
+        text = "limit:"
+        font = new Font( SANS_SERIF, PLAIN, 12 )
+        border = new EmptyBorder(0,20,0,0)
+        xAlignment = Alignment.Right
+      }
       val SecondsLabel = new Label {
         text = "seconds"
         font = new Font( SANS_SERIF, PLAIN, 12 )
         xAlignment = Alignment.Left
       }
+      layout( LimitLabel   ) = West
       layout( SecondsField ) = Center
       layout( SecondsLabel ) = East
     }
@@ -239,12 +246,16 @@ object RandomSeminar extends SimpleSwingApplication {
         ParticipantList.selection.items.foreach( p => removeParticipant( p.name ) )
         TabsPane.syncAll()
       }
+      case KeyPressed( ParticipantList, Key.Space, _, _ ) => {
+        toggleParticipants( ParticipantList.selection.items )
+        TabsPane.syncAll()
+      }
       case KeyPressed( ParticipantList, Key.Enter, _, _ ) if ParticipantList.selection.items.size == 1 => {
         anointParticipant( ParticipantList.selection.items.head )
         TabsPane.syncAll()
       }
       case evt =>{
-        println(s"Event! ${evt}")
+        // println(s"Event! ${evt}")
       }
     }
 
@@ -296,6 +307,14 @@ object RandomSeminar extends SimpleSwingApplication {
     removeParticipant( newParticipant.name )
     addParticipant( newParticipant.name, true )
     this.currentParticipantName = Some( newParticipant.name )
+    resetSession()
+  }
+
+  private def toggleParticipants( targets : Seq[Participant] ) : Unit = {
+    participants --= targets
+    targets.foreach { target =>
+      participants += target.copy( spokenYet = !target.spokenYet )
+    }
     resetSession()
   }
 
