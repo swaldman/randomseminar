@@ -48,5 +48,5 @@ Or you can break out with <ctrl-d> and run the script `random-seminar` which you
 $ ./target/universal/stage/bin/randomseminar &
 ```
 
-Either way, the applocation should pop up!
+Either way, the application should pop up!
 
